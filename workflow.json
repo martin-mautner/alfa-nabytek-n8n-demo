@@ -11,7 +11,7 @@
       "typeVersion": 2.1,
       "position": [
         0,
-        250
+        320
       ],
       "parameters": {
         "httpMethod": "POST",
@@ -30,7 +30,7 @@
       "typeVersion": 3.4,
       "position": [
         192,
-        250
+        320
       ],
       "parameters": {
         "assignments": {
@@ -56,7 +56,7 @@
       "typeVersion": 2,
       "position": [
         384,
-        250
+        320
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
@@ -72,7 +72,7 @@
       "typeVersion": 2.2,
       "position": [
         576,
-        250
+        320
       ],
       "parameters": {
         "conditions": {
@@ -109,7 +109,7 @@
       "onError": "continueRegularOutput",
       "position": [
         768,
-        250
+        240
       ],
       "parameters": {
         "method": "GET",
@@ -142,7 +142,7 @@
       "typeVersion": 3.4,
       "position": [
         960,
-        250
+        240
       ],
       "parameters": {
         "assignments": {
@@ -174,7 +174,7 @@
       "typeVersion": 2,
       "position": [
         1152,
-        250
+        240
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
@@ -190,7 +190,7 @@
       "typeVersion": 2.2,
       "position": [
         1344,
-        250
+        240
       ],
       "parameters": {
         "conditions": {
@@ -227,7 +227,7 @@
       "onError": "continueRegularOutput",
       "position": [
         1536,
-        250
+        176
       ],
       "parameters": {
         "method": "POST",
@@ -266,7 +266,7 @@
       "onError": "continueRegularOutput",
       "position": [
         1728,
-        250
+        176
       ],
       "parameters": {
         "method": "GET",
@@ -299,7 +299,7 @@
       "typeVersion": 3.4,
       "position": [
         1920,
-        250
+        176
       ],
       "parameters": {
         "assignments": {
@@ -337,7 +337,7 @@
       "typeVersion": 2,
       "position": [
         2112,
-        250
+        176
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
@@ -353,7 +353,7 @@
       "typeVersion": 3.4,
       "position": [
         2304,
-        390
+        336
       ],
       "parameters": {
         "assignments": {
@@ -385,7 +385,7 @@
       "typeVersion": 1.4,
       "position": [
         2496,
-        390
+        336
       ],
       "parameters": {
         "respondWith": "json",
@@ -415,7 +415,7 @@
       "typeVersion": 1.3,
       "position": [
         0,
-        650
+        656
       ],
       "parameters": {
         "rule": {
@@ -430,12 +430,12 @@
     },
     {
       "id": "f8a08183530499678a213440e373855d",
-      "name": "16 - Je pilot povolený",
+      "name": "16 - Pilot je povolený",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
         192,
-        650
+        656
       ],
       "parameters": {
         "conditions": {
@@ -470,7 +470,7 @@
       "onError": "continueRegularOutput",
       "position": [
         384,
-        650
+        656
       ],
       "parameters": {
         "method": "GET",
@@ -501,8 +501,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        576,
-        650
+        560,
+        656
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
@@ -518,8 +518,8 @@
       "retryOnFail": false,
       "onError": "continueRegularOutput",
       "position": [
-        768,
-        650
+        736,
+        656
       ],
       "parameters": {
         "method": "GET",
@@ -550,8 +550,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        960,
-        650
+        928,
+        656
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
@@ -565,8 +565,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        1152,
-        650
+        1120,
+        688
       ],
       "parameters": {
         "rules": {
@@ -655,7 +655,7 @@
       "onError": "continueRegularOutput",
       "position": [
         1344,
-        650
+        624
       ],
       "parameters": {
         "method": "POST",
@@ -690,8 +690,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1536,
-        650
+        1520,
+        624
       ],
       "parameters": {
         "conditions": {
@@ -722,8 +722,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1728,
-        650
+        1712,
+        608
       ],
       "parameters": {
         "conditions": {
@@ -757,8 +757,8 @@
       "retryOnFail": false,
       "onError": "continueRegularOutput",
       "position": [
-        1920,
-        650
+        1904,
+        592
       ],
       "parameters": {
         "method": "POST",
@@ -793,8 +793,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2112,
-        650
+        2096,
+        592
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -807,8 +807,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2304,
-        650
+        2288,
+        592
       ],
       "parameters": {
         "conditions": {
@@ -843,7 +843,7 @@
       "onError": "continueRegularOutput",
       "position": [
         2496,
-        650
+        592
       ],
       "parameters": {
         "authentication": "oAuth2",
@@ -864,8 +864,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1920,
-        815
+        1952,
+        816
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -881,8 +881,8 @@
       "retryOnFail": false,
       "onError": "continueRegularOutput",
       "position": [
-        2112,
-        815
+        2144,
+        816
       ],
       "parameters": {
         "authentication": "oAuth2",
@@ -905,7 +905,7 @@
       "typeVersion": 2,
       "position": [
         2496,
-        815
+        816
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -920,7 +920,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        1120
+        1216
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -937,7 +937,7 @@
       "onError": "continueRegularOutput",
       "position": [
         192,
-        1120
+        1216
       ],
       "parameters": {
         "method": "GET",
@@ -969,7 +969,7 @@
       "typeVersion": 2,
       "position": [
         384,
-        1120
+        1216
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -983,7 +983,7 @@
       "typeVersion": 2.2,
       "position": [
         576,
-        1120
+        1216
       ],
       "parameters": {
         "conditions": {
@@ -1018,7 +1018,7 @@
       "onError": "continueRegularOutput",
       "position": [
         768,
-        1120
+        1088
       ],
       "parameters": {
         "method": "GET",
@@ -1050,7 +1050,7 @@
       "typeVersion": 2,
       "position": [
         960,
-        1120
+        1088
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -1064,7 +1064,7 @@
       "typeVersion": 2.2,
       "position": [
         1344,
-        1300
+        1312
       ],
       "parameters": {
         "conditions": {
@@ -1099,7 +1099,7 @@
       "onError": "continueRegularOutput",
       "position": [
         1536,
-        1300
+        1312
       ],
       "parameters": {
         "method": "GET",
@@ -1131,7 +1131,7 @@
       "typeVersion": 2,
       "position": [
         1728,
-        1300
+        1312
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -1146,7 +1146,7 @@
       "typeVersion": 2,
       "position": [
         1920,
-        1300
+        1312
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -1160,7 +1160,7 @@
       "typeVersion": 2.2,
       "position": [
         2112,
-        1300
+        1312
       ],
       "parameters": {
         "conditions": {
@@ -1195,7 +1195,7 @@
       "onError": "continueRegularOutput",
       "position": [
         2304,
-        1300
+        1312
       ],
       "parameters": {
         "method": "POST",
@@ -1231,7 +1231,7 @@
       "typeVersion": 2,
       "position": [
         2496,
-        1300
+        1312
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
@@ -1244,8 +1244,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -68,
-        148
+        -64,
+        160
       ],
       "parameters": {
         "content": "# 1. Příjem z webu\n\n### Web potvrdí přijetí až po ověřeném uložení poptávky do Google Sheets.",
@@ -1260,8 +1260,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -68,
-        554
+        -64,
+        560
       ],
       "parameters": {
         "content": "# 2. Potvrzení a AI koncept\n\n### n8n potvrdí přijetí, založí Gmail koncept a upozorní majitele. Majitel koncept upraví a ručně odešle.",
@@ -1276,8 +1276,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -68,
-        998
+        -64,
+        1008
       ],
       "parameters": {
         "content": "# 3. Ověření odeslání\n\n### n8n ověří adresáta a referenci ve složce Odeslané. V Sheets se zobrazí Odpověď odeslána.",
@@ -1292,8 +1292,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -68,
-        0
+        -64,
+        16
       ],
       "parameters": {
         "content": "# ALFA nábytek | Automatizace poptávek\n\n### Místní ukázka od webového košíku přes AI návrh odpovědi v Gmailu po evidenci odeslání.",
@@ -1465,14 +1465,14 @@
       "main": [
         [
           {
-            "node": "16 - Je pilot povolený",
+            "node": "16 - Pilot je povolený",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "16 - Je pilot povolený": {
+    "16 - Pilot je povolený": {
       "main": [
         [
           {
