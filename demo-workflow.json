@@ -1,0 +1,456 @@
+{
+  "name": "ALFA nábytek · demo s mock daty",
+  "nodes": [
+    {
+      "id": "c86ca0674ffaf6f12be53292ff45dc60",
+      "name": "Spustit ukázku",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        240
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "e394ba18b59a90034a9cd9c12f95a9ce",
+      "name": "Upravit zadání",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c94a8b32b9feabb042f0c4a2da4423e0",
+              "name": "scenar",
+              "value": "chybi_rozmery",
+              "type": "string"
+            },
+            {
+              "id": "404cecaec90bb325b38fef12bc5ca121",
+              "name": "jmeno",
+              "value": "Jana Nováková",
+              "type": "string"
+            },
+            {
+              "id": "045751a660181fb36923e14dac13be09",
+              "name": "email",
+              "value": "zakaznik@portfolio.test",
+              "type": "string"
+            },
+            {
+              "id": "af1e4e5805373d2b687fc7b22ad263f9",
+              "name": "polozka",
+              "value": "Jednací stůl pro čtyři osoby",
+              "type": "string"
+            },
+            {
+              "id": "21c93ed23a06edd85af3079326f0342c",
+              "name": "rozmery",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "27d86626f1685119aeb47975b17c487f",
+              "name": "poznamka",
+              "value": "Hledáme stůl do malé zasedací místnosti.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "notes": "Změňte scenar: chybi_rozmery / spravna_odpoved / chybny_adresat. Ostatní pole lze také upravit.",
+      "notesInFlow": true
+    },
+    {
+      "id": "80ae38f6cea0759cb7c42e8a90d11554",
+      "name": "Přijmout poptávku · mock Sheets",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        240
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst scenarios = ['chybi_rozmery', 'spravna_odpoved', 'chybny_adresat'];\nif (!scenarios.includes($json.scenar)) throw Error('Pole scenar musí být: ' + scenarios.join(' / '));\nfor (const key of ['jmeno', 'email', 'polozka', 'rozmery', 'poznamka']) {\n  if (typeof $json[key] !== 'string' || $json[key].length > 2000) throw Error('Neplatné pole: ' + key);\n}\nif (!/^[^\\s@<>\\r\\n]+@[^\\s@<>\\r\\n]+\\.test$/.test($json.email))\n  throw Error('Použijte fiktivní adresu s doménou .test, například zakaznik@portfolio.test.');\nif (!$json.jmeno.trim() || !$json.polozka.trim()) throw Error('Vyplňte jméno a položku.');\nreturn { json: {\n  ...$json, id: 'DEMO-11111111-1111-4111-8111-111111111111',\n  receivedAt: new Date().toISOString(), stav: 'Poptávka přijata',\n  rezim: 'MOCK — data existují jen v tomto běhu n8n',\n} };"
+      },
+      "notes": "Simulovaný zápis. Každé spuštění je nový, nezávislý běh se stejným fiktivním ID.",
+      "notesInFlow": true
+    },
+    {
+      "id": "fa688d7a1c4efe2a3353d0137dab2f20",
+      "name": "Potvrdit přijetí · mock Gmail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        240
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nreturn { json: { ...$json, potvrzeni: {\n  komu: $json.email, predmet: '[ALFA-PRIJETI ' + $json.id + '] Potvrzení přijetí poptávky',\n  text: 'Dobrý den, přijali jsme Vaši poptávku: ' + $json.polozka + '.',\n  stav: 'Simulováno — žádná zpráva se neodesílá',\n} } };"
+      }
+    },
+    {
+      "id": "1ce26e1c1624193ca9f7f859766c5558",
+      "name": "Připravit úlohu konceptu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        240
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nreturn { json: { id: $json.id, to: $json.email, account: 'majitel@portfolio.test',\n  since: $json.receivedAt, mode: 'claim', step: 'Koncept' } };"
+      }
+    },
+    {
+      "id": "0d093fa06dbf0d6dd82d20c2ebb09f04",
+      "name": "Navrhnout text · mock AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        240
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst inquiry = $('Přijmout poptávku · mock Sheets').item.json;\nconst missing = !inquiry.rozmery.trim();\nconst question = 'Jaké rozměry má mít ' + inquiry.polozka.toLowerCase() + '?';\nconst text = missing ? question : 'Evidujeme požadované rozměry: ' + inquiry.rozmery + '. Podklady předáváme majiteli k posouzení.';\nconst output = {\n  status: missing ? 'needs_clarification' : 'ready_for_review',\n  summary: inquiry.jmeno + ' poptává: ' + inquiry.polozka + '. ' + inquiry.poznamka,\n  missingInformation: { customer: missing ? [question] : [], owner: [] },\n  subject: missing ? 'Upřesnění poptávky' : 'Přijetí podkladů k poptávce',\n  body: 'Dobrý den,\\n\\nděkujeme za poptávku: ' + inquiry.polozka + '.\\n' + text + '\\n\\nS pozdravem\\nALFA nábytek',\n};\nreturn { json: { statusCode: 200, body: {\n  id: 'resp_mock', status: 'completed', model: 'gpt-5-mini',\n  usage: { input_tokens: 0, output_tokens: 0 },\n  output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(output) }] }],\n} } };"
+      },
+      "notes": "Pevná šablona reagující na vstup. Model se nevolá; lze upravit rozměry a porovnat výsledek.",
+      "notesInFlow": true
+    },
+    {
+      "id": "d6c5c0450aa188dcb22ace6c921ce179",
+      "name": "Připravit Gmail koncept",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        580
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// src/lib/inquiries/contract.ts\nvar MAX_BODY_BYTES = 256 * 1024;\nvar InquiryError = class extends Error {\n  constructor(code, errors) {\n    super(code);\n    this.code = code;\n    this.errors = errors;\n  }\n};\nfunction record(value) {\n  if (!value || typeof value !== \"object\" || Array.isArray(value))\n    throw new InquiryError(\"invalid\");\n  return value;\n}\n\n// src/lib/notifications/outbox.ts\nvar SAFE_REPLAY_MS = 23 * 60 * 60 * 1e3;\n\n// src/lib/inquiries/n8n-contract.ts\nvar MAX_N8N_BYTES = 512 * 1024;\n\n// src/lib/quotes/contract.ts\nvar MODEL = \"gpt-5-mini\";\nvar statuses = [\"ready_for_review\", \"needs_clarification\", \"manual_review\"];\nfunction string(value, max, required = true) {\n  if (typeof value !== \"string\" || value.length > max || /[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(value) || required && !value.trim())\n    throw new Error(\"quote_invalid_text\");\n  return value;\n}\nfunction keys(value, expected) {\n  if (Object.keys(value).sort().join() !== [...expected].sort().join()) throw new Error(\"quote_invalid_fields\");\n}\nfunction parseQuoteOutput(raw) {\n  const x = record(raw);\n  keys(x, [\"status\", \"summary\", \"missingInformation\", \"subject\", \"body\"]);\n  if (!statuses.includes(x.status)) throw new Error(\"quote_invalid_status\");\n  const missing = record(x.missingInformation);\n  keys(missing, [\"customer\", \"owner\"]);\n  for (const list of [missing.customer, missing.owner]) {\n    if (!Array.isArray(list) || list.length > 30) throw new Error(\"quote_invalid_missing\");\n    list.forEach((v) => string(v, 600));\n  }\n  const subject = string(x.subject, 180);\n  if (/[\\r\\n]/.test(subject)) throw new Error(\"quote_header_injection\");\n  return {\n    status: x.status,\n    summary: string(x.summary, 5e3),\n    missingInformation: { customer: missing.customer, owner: missing.owner },\n    subject,\n    body: string(x.body, 12e3)\n  };\n}\nvar textSchema = { type: \"string\" };\nvar outputSchema = {\n  type: \"object\",\n  properties: {\n    status: { type: \"string\", enum: [...statuses] },\n    summary: textSchema,\n    missingInformation: {\n      type: \"object\",\n      properties: { customer: { type: \"array\", items: textSchema }, owner: { type: \"array\", items: textSchema } },\n      required: [\"customer\", \"owner\"],\n      additionalProperties: false\n    },\n    subject: textSchema,\n    body: textSchema\n  },\n  required: [\"status\", \"summary\", \"missingInformation\", \"subject\", \"body\"],\n  additionalProperties: false\n};\n\n// src/lib/quotes/n8n-runtime.ts\nfunction aiResult(response) {\n  const r = record(response);\n  if (r.statusCode !== 200) throw new Error(\"quotes_ai_failed\");\n  const b = record(r.body), usage = record(b.usage);\n  if (b.status !== \"completed\" || typeof b.id !== \"string\" || typeof b.model !== \"string\" || !b.model.startsWith(MODEL) || !Array.isArray(b.output) || !Number.isInteger(usage.input_tokens) || Number(usage.input_tokens) < 0 || !Number.isInteger(usage.output_tokens) || Number(usage.output_tokens) < 0 || Number(usage.output_tokens) > 5e3) throw new Error(\"quotes_ai_invalid\");\n  const parts = b.output.map(record).filter((x) => x.type === \"message\").flatMap((x) => Array.isArray(x.content) ? x.content.map(record) : []);\n  if (parts.some((x) => x.type === \"refusal\") || parts.filter((x) => x.type === \"output_text\").length !== 1) throw new Error(\"quotes_ai_refused\");\n  return { output: parseQuoteOutput(JSON.parse(String(parts.find((x) => x.type === \"output_text\").text))), responseId: b.id, resolvedModel: b.model, inputTokens: Number(usage.input_tokens), outputTokens: Number(usage.output_tokens) };\n}\n\n// src/lib/inquiry-draft/sheets.ts\nvar steps = [\"P\\u0159ijet\\xED\", \"Koncept\", \"Upozorn\\u011Bn\\xED\", \"Odeslan\\xE1 odpov\\u011B\\u010F\"];\n\n// src/lib/inquiry-draft/workflow.ts\nvar [receiptStep, draftStep, noticeStep, sentStep] = steps;\nvar labels = {\n  [receiptStep]: \"ALFA-PRIJETI\",\n  [draftStep]: \"ALFA-ODPOVED\",\n  [noticeStep]: \"ALFA-KONCEPT\",\n  [sentStep]: \"ALFA-ODPOVED\"\n};\nvar marker = (id, step) => `[${labels[step]} ${id}]`;\nvar issue = (id, step, note, now = /* @__PURE__ */ new Date()) => ({ id, step, outcome: \"Ru\\u010Dn\\xED kontrola\", at: now.toISOString(), gmailId: \"\", note });\nfunction mailFields(task, subject, body) {\n  return { to: task.to, subject: `${marker(task.id, task.step)} ${subject}`, body };\n}\nfunction draftMessage(task, response) {\n  if (task.mode !== \"claim\" || task.step !== draftStep) throw new Error(\"draft_without_claim\");\n  try {\n    const { output } = aiResult(response);\n    return { action: \"create\", ...mailFields(task, output.subject, output.body) };\n  } catch {\n    return { action: \"issue\", event: issue(task.id, task.step, \"AI neposkytla ov\\u011B\\u0159iteln\\xFD v\\xFDstup. Zkontrolujte popt\\xE1vku a p\\u0159ipravte odpov\\u011B\\u010F ru\\u010Dn\\u011B.\") };\n  }\n}\nvar AlfaDraft = { draftMessage };\n\nreturn { json: AlfaDraft.draftMessage($('Připravit úlohu konceptu').item.json, $json) };"
+      },
+      "notes": "Skutečný kód z workflow.json: 26 - Připravit Gmail koncept. Změněné jsou pouze odkazy na uzly.",
+      "notesInFlow": true
+    },
+    {
+      "id": "7cbe8b82109ab3394cfca4ec01b37ca8",
+      "name": "Uložit koncept · mock Gmail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        580
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nif ($json.action !== 'create') throw Error('Návrh neprošel skutečnou validací. Zkontrolujte výstup předchozího uzlu.');\nreturn { json: { ...$json, draftId: 'koncept-mock', stav: 'Koncept připraven',\n  upozorneni: 'Simulované upozornění majiteli: koncept čeká na ruční kontrolu.' } };"
+      }
+    },
+    {
+      "id": "860292d19739805c71c3fb8f60e4244c",
+      "name": "Simulovat ruční odeslání?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        580
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e4be27b7fe1e01a989f9daf226734feb",
+              "leftValue": "={{ String($('Upravit zadání').item.json.scenar !== 'chybi_rozmery') }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "notes": "Scénář chybi_rozmery končí připraveným konceptem. Zbylé dva simulují i ruční odeslání majitelem.",
+      "notesInFlow": true
+    },
+    {
+      "id": "42351a71ed496170f3c1b1a1955dda93",
+      "name": "Připravit ověření odeslání",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        920
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst inquiry = $('Přijmout poptávku · mock Sheets').item.json;\nreturn { json: { id: inquiry.id, to: inquiry.email, account: 'majitel@portfolio.test',\n  since: inquiry.receivedAt, mode: 'search', step: 'Odeslaná odpověď', providerId: 'zprava-mock' } };"
+      }
+    },
+    {
+      "id": "fe980dcab2e87a5cade513a50a27a598",
+      "name": "Načíst odeslanou zprávu · mock Gmail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        920
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst inquiry = $('Přijmout poptávku · mock Sheets').item.json;\nconst draft = $('Připravit Gmail koncept').item.json;\nreturn { json: { statusCode: 200, body: { id: 'zprava-mock', labelIds: ['SENT'],\n  internalDate: String(Date.parse(inquiry.receivedAt) + 1000), payload: { headers: [\n    { name: 'To', value: inquiry.scenar === 'chybny_adresat' ? 'jiny@portfolio.test' : inquiry.email },\n    { name: 'Subject', value: draft.subject },\n  ] } } } };"
+      },
+      "notes": "Změní pouze simulovaná data; neexistuje zde žádný uzel pro odeslání skutečného e-mailu.",
+      "notesInFlow": true
+    },
+    {
+      "id": "2cb00a04ee3b528fd357c1efe531777f",
+      "name": "Ověřit odeslanou zprávu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        920
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// src/lib/inquiries/contract.ts\nvar MAX_BODY_BYTES = 256 * 1024;\nvar InquiryError = class extends Error {\n  constructor(code, errors) {\n    super(code);\n    this.code = code;\n    this.errors = errors;\n  }\n};\nfunction record(value) {\n  if (!value || typeof value !== \"object\" || Array.isArray(value))\n    throw new InquiryError(\"invalid\");\n  return value;\n}\n\n// src/lib/notifications/outbox.ts\nvar SAFE_REPLAY_MS = 23 * 60 * 60 * 1e3;\n\n// src/lib/inquiries/n8n-contract.ts\nvar MAX_N8N_BYTES = 512 * 1024;\n\n// src/lib/notifications/config.ts\nfunction emailAddress(value) {\n  if (value.length > 254 || !/^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\\.[A-Za-z]{2,}$/.test(\n    value\n  ))\n    throw new Error(\"invalid_email_address\");\n  return value.toLowerCase();\n}\n\n// src/lib/quotes/contract.ts\nvar statuses = [\"ready_for_review\", \"needs_clarification\", \"manual_review\"];\nvar textSchema = { type: \"string\" };\nvar outputSchema = {\n  type: \"object\",\n  properties: {\n    status: { type: \"string\", enum: [...statuses] },\n    summary: textSchema,\n    missingInformation: {\n      type: \"object\",\n      properties: { customer: { type: \"array\", items: textSchema }, owner: { type: \"array\", items: textSchema } },\n      required: [\"customer\", \"owner\"],\n      additionalProperties: false\n    },\n    subject: textSchema,\n    body: textSchema\n  },\n  required: [\"status\", \"summary\", \"missingInformation\", \"subject\", \"body\"],\n  additionalProperties: false\n};\n\n// src/lib/quotes/services.ts\nfunction decodeHeader(value) {\n  return value.replace(/\\?=\\s+(?==\\?)/g, \"?=\").replace(/=\\?(?:UTF-8|US-ASCII)\\?([BQ])\\?([^?]*)\\?=/gi, (_all, mode, encoded) => {\n    if (mode.toUpperCase() === \"B\") return Buffer.from(encoded, \"base64\").toString(\"utf8\");\n    const bytes = [];\n    const s = encoded.replace(/_/g, \" \");\n    for (let i = 0; i < s.length; i++) {\n      if (s[i] === \"=\" && /^[a-f0-9]{2}$/i.test(s.slice(i + 1, i + 3))) {\n        bytes.push(parseInt(s.slice(i + 1, i + 3), 16));\n        i += 2;\n      } else bytes.push(s.charCodeAt(i));\n    }\n    return Buffer.from(bytes).toString(\"utf8\");\n  });\n}\n\n// src/lib/inquiry-draft/sheets.ts\nvar steps = [\"P\\u0159ijet\\xED\", \"Koncept\", \"Upozorn\\u011Bn\\xED\", \"Odeslan\\xE1 odpov\\u011B\\u010F\"];\n\n// src/lib/inquiry-draft/workflow.ts\nvar [receiptStep, draftStep, noticeStep, sentStep] = steps;\nvar labels = {\n  [receiptStep]: \"ALFA-PRIJETI\",\n  [draftStep]: \"ALFA-ODPOVED\",\n  [noticeStep]: \"ALFA-KONCEPT\",\n  [sentStep]: \"ALFA-ODPOVED\"\n};\nvar marker = (id, step) => `[${labels[step]} ${id}]`;\nvar issue = (id, step, note, now = /* @__PURE__ */ new Date()) => ({ id, step, outcome: \"Ru\\u010Dn\\xED kontrola\", at: now.toISOString(), gmailId: \"\", note });\nfunction okBody(response) {\n  const r = record(response);\n  if (r.statusCode !== 200) throw new Error(\"draft_provider_read_failed\");\n  return record(r.body);\n}\nfunction gmailId(value) {\n  return typeof value === \"string\" && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n}\nvar isDraft = (task) => task.step === draftStep;\nfunction mailbox(value) {\n  const match = value.match(/^(?:\"(?:[^\"\\\\]|\\\\.)*\"|[^<>,:;@\"]*)\\s*<([^<>]+)>$/);\n  try {\n    return emailAddress((match?.[1] ?? value).trim());\n  } catch {\n    return \"\";\n  }\n}\nfunction verifiedMessage(task, providerId, response) {\n  const body = okBody(response);\n  const message = isDraft(task) ? record(body.message) : body;\n  const headers = record(message.payload).headers;\n  if (body.id !== providerId || !gmailId(message.id) || !Array.isArray(headers) || !Array.isArray(message.labelIds))\n    throw new Error(\"draft_message_result\");\n  const values = (name) => headers.map(record).filter((h) => String(h.name).toLowerCase() === name).map((h) => decodeHeader(String(h.value ?? \"\")).replace(/\\r?\\n[ \\t]+/g, \" \").trim());\n  const to = values(\"to\"), subject = values(\"subject\"), labels2 = message.labelIds;\n  const correctLabel = isDraft(task) ? labels2.includes(\"DRAFT\") && !labels2.includes(\"SENT\") : labels2.includes(\"SENT\") && !labels2.includes(\"DRAFT\");\n  if (!correctLabel || labels2.includes(\"TRASH\") || to.length !== 1 || mailbox(to[0]) !== task.to || values(\"cc\").some(Boolean) || values(\"bcc\").some(Boolean) || subject.length !== 1 || !subject[0].includes(marker(task.id, task.step))) throw new Error(\"draft_message_mismatch\");\n  const time = Number(message.internalDate);\n  const earliest = Math.floor(Date.parse(task.since) / 1e3) * 1e3;\n  if (!isDraft(task) && (!Number.isSafeInteger(time) || time < earliest)) throw new Error(\"draft_message_time\");\n  return {\n    id: task.id,\n    step: task.step,\n    outcome: \"Ov\\u011B\\u0159eno\",\n    at: isDraft(task) ? (/* @__PURE__ */ new Date()).toISOString() : new Date(time).toISOString(),\n    gmailId: providerId,\n    note: \"\"\n  };\n}\nfunction checkMessage(task, providerId, response) {\n  try {\n    return { event: verifiedMessage(task, providerId, response) };\n  } catch {\n    const status = record(response).statusCode;\n    if (task.mode === \"search\" && (status === 200 || status === 404))\n      return { event: issue(task.id, task.step, \"Gmail neprok\\xE1zal o\\u010Dek\\xE1vanou referenci, p\\u0159\\xEDjemce nebo slo\\u017Eku. Zkontrolujte zpr\\xE1vu ru\\u010Dn\\u011B.\") };\n    return {};\n  }\n}\nvar AlfaDraft = { checkMessage };\n\nreturn { json: AlfaDraft.checkMessage($('Připravit ověření odeslání').item.json, $('Připravit ověření odeslání').item.json.providerId, $json) };"
+      },
+      "notes": "Skutečný kód z workflow.json: 40 - Ověřit adresáta, referenci a složku. Změněné jsou pouze odkazy na uzly.",
+      "notesInFlow": true
+    },
+    {
+      "id": "bde342807f5a34aab805fa56a4785272",
+      "name": "Výsledek ukázky",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        580
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst inquiry = $('Přijmout poptávku · mock Sheets').item.json;\nconst draft = $('Připravit Gmail koncept').item.json;\nconst acknowledgement = $('Potvrdit přijetí · mock Gmail').item.json.potvrzeni;\nconst event = $json.event;\nconst state = !event ? 'Koncept připraven' : event.outcome === 'Ověřeno' ? 'Odpověď odeslána' : 'Ruční kontrola';\nconst expected = { chybi_rozmery: 'Koncept připraven', spravna_odpoved: 'Odpověď odeslána', chybny_adresat: 'Ruční kontrola' };\nif (state !== expected[inquiry.scenar]) throw Error('Výsledek neodpovídá zvolenému scénáři.');\nreturn { json: {\n  scenar: inquiry.scenar, stav: state, vysledek: 'Scénář prošel',\n  poptavka: { id: inquiry.id, jmeno: inquiry.jmeno, email: inquiry.email, polozka: inquiry.polozka, rozmery: inquiry.rozmery, poznamka: inquiry.poznamka },\n  potvrzeni: acknowledgement,\n  koncept: { komu: draft.to, predmet: draft.subject, text: draft.body },\n  evidence: { id: inquiry.id, stav: state, overeni: event?.outcome ?? 'Čeká na ruční odeslání',\n    poznamka: event?.note ?? 'Koncept je připraven ke kontrole majitelem.' },\n  skutecneOperace: 'Žádné. Google Sheets, Gmail i AI jsou simulované. Toto je ukázka vybraných kontrol, nikoli celý živý provoz.',\n} };"
+      },
+      "notes": "Zde otevřete OUTPUT → JSON. Najdete stav, potvrzení, text konceptu a výsledek ověření.",
+      "notesInFlow": true
+    },
+    {
+      "id": "0d893a6315d1f940260f0271aa5e4e0f",
+      "name": "Začněte zde",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -180
+      ],
+      "parameters": {
+        "content": "# ALFA nábytek · vyzkoušejte automatizaci\n\n1. V uzlu **Upravit zadání** změňte `scenar` nebo údaje.\n2. Klikněte **Execute workflow**.\n3. Otevřete **Výsledek ukázky → OUTPUT → JSON**.\n\n**Bez připojených účtů a bez sítě.** Veškeré údaje a služby jsou fiktivní. Každý běh začíná od začátku.",
+        "width": 1500,
+        "height": 300,
+        "color": 5
+      }
+    },
+    {
+      "id": "1acbaf4e92277e334592c28ce05e7999",
+      "name": "Scénáře",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        820
+      ],
+      "parameters": {
+        "content": "## Vyberte scenar\n\n`chybi_rozmery` → Koncept připraven\n\n`spravna_odpoved` → Odpověď odeslána\n\n`chybny_adresat` → Ruční kontrola\n\nVyplňte `rozmery` a sledujte změnu připravené odpovědi. Pole `poznamka` je v rekapitulaci; mock AI ji jazykově nevyhodnocuje.",
+        "width": 650,
+        "height": 330,
+        "color": 4
+      }
+    },
+    {
+      "id": "eb09f9462ed664872993c88d684a9190",
+      "name": "Skutečné kontroly",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        200
+      ],
+      "parameters": {
+        "content": "## Co se skutečně vykonává\n\n**Připravit Gmail koncept** a **Ověřit odeslanou zprávu** obsahují kód z anonymizovaného `workflow.json`.\n\nVnější služby nahrazují uzly s označením **mock**. Není zde živý zápis do tabulky, volání AI ani odeslání e-mailu. Ruční odeslání majitelem je ve dvou scénářích simulované.",
+        "width": 520,
+        "height": 640,
+        "color": 7
+      }
+    }
+  ],
+  "connections": {
+    "Spustit ukázku": {
+      "main": [
+        [
+          {
+            "node": "Upravit zadání",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upravit zadání": {
+      "main": [
+        [
+          {
+            "node": "Přijmout poptávku · mock Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Přijmout poptávku · mock Sheets": {
+      "main": [
+        [
+          {
+            "node": "Potvrdit přijetí · mock Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Potvrdit přijetí · mock Gmail": {
+      "main": [
+        [
+          {
+            "node": "Připravit úlohu konceptu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Připravit úlohu konceptu": {
+      "main": [
+        [
+          {
+            "node": "Navrhnout text · mock AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Navrhnout text · mock AI": {
+      "main": [
+        [
+          {
+            "node": "Připravit Gmail koncept",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Připravit Gmail koncept": {
+      "main": [
+        [
+          {
+            "node": "Uložit koncept · mock Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Uložit koncept · mock Gmail": {
+      "main": [
+        [
+          {
+            "node": "Simulovat ruční odeslání?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulovat ruční odeslání?": {
+      "main": [
+        [
+          {
+            "node": "Připravit ověření odeslání",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Výsledek ukázky",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Připravit ověření odeslání": {
+      "main": [
+        [
+          {
+            "node": "Načíst odeslanou zprávu · mock Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Načíst odeslanou zprávu · mock Gmail": {
+      "main": [
+        [
+          {
+            "node": "Ověřit odeslanou zprávu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ověřit odeslanou zprávu": {
+      "main": [
+        [
+          {
+            "node": "Výsledek ukázky",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Prague",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  }
+}
